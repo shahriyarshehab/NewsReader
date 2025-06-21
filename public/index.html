@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RSS News Aggregator</title>
+</head>
+<body>
+  <h1>📰 RSS Headlines</h1>
+  <ul id="news"></ul>
+
+  <script>
+    fetch("/feed")
+      .then(res => res.json())
+      .then(data => {
+        const list = document.getElementById("news");
+        data.forEach(item => {
+          const li = document.createElement("li");
+          li.innerHTML = `<a href="${item.link}" target="_blank">${item.title}</a> - <strong>${item.pubDate}</strong> - <em>${item.source}</em>`;
+          list.appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>
