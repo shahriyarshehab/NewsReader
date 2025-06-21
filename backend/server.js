@@ -16,22 +16,35 @@ app.use(cors());
 
 app.get("/feed", async (req, res) => {
   const source = req.query.source;
-  let urls = Object.values(feeds);
+  const custom = req.query.custom;
+  let urls = [];
 
-  if (source && feeds[source]) {
+  if (custom) {
+    urls = [custom];
+  } else if (source && feeds[source]) {
     urls = [feeds[source]];
+  } else {
+    urls = Object.values(feeds);
   }
 
   try {
     let allItems = [];
     for (const url of urls) {
       const feed = await parser.parseURL(url);
-      const items = feed.items.map(item => ({
-        title: item.title,
-        link: item.link,
-        source: feed.title,
-        pubDate: item.pubDate ? new Date(item.pubDate) : new Date()
-      }));
+      const items = feed.items.map(item => {
+        const image =
+          item.enclosure?.url ||
+          (item.content && item.content.match(/<img.+?src=["'](.+?)["']/)?.[1]) ||
+          null;
+
+        return {
+          title: item.title,
+          link: item.link,
+          source: feed.title,
+          pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+          image: image
+        };
+      });
       allItems.push(...items);
     }
 
