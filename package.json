@@ -16,9 +16,11 @@
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
- "start": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd backend && npm start",
     "client": "cd frontend && npm run dev"
   },
-  "devDependencies": {}
+  "dependencies": {
+    "concurrently": "^9.1.2"
+  }
 }
