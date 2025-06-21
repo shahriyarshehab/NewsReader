@@ -5,6 +5,7 @@ const feeds = [
   "https://www.prothomalo.com/feed/",
   "https://www.kalerkantho.com/rss.xml",
   "https://www.bbc.com/bengali/index.xml"
+  "https://www.ittefaq.com.bd/feed/"
 ];
 
 async function fetchRSS() {
