@@ -31,33 +31,34 @@ app.get("/feed", async (req, res) => {
   try {
     let allItems = [];
     for (const url of urls) {
-      const feed = await parser.parseURL(url);
-      const items = feed.items.map(item => {
-        const image =
-          item.enclosure?.url ||
-          (item.content && item.content.match(/<img.+?src=["'](.+?)["']/)?.[1]) ||
-          null;
+      try {
+        const feed = await parser.parseURL(url);
+        const items = feed.items.map(item => {
+          const image = null;
 
-        return {
-          title: item.title,
-          link: item.link,
-          source: feed.title,
-          pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
-          image: image
-        };
-      });
-      allItems.push(...items);
+          return {
+            title: item.title,
+            link: item.link,
+            source: feed.title,
+            pubDate: item.pubDate ? new Date(item.pubDate) : new Date(),
+            image: image
+          };
+        });
+        allItems.push(...items);
+      } catch (error) {
+        console.error(`Failed to fetch feed from ${url}:`, error);
+      }
     }
 
     allItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
     allItems = allItems.map(item => ({
       ...item,
-      pubDate: new Date(item.pubDate).toLocaleString("en-GB", { timeZone: "Asia/Dhaka" })
+      pubDate: item.pubDate
     }));
 
     res.json(allItems);
   } catch (err) {
-    res.status(500).json({ error: "Failed to fetch feeds." });
+    res.status(500).json({ error: "Failed to process feeds." });
   }
 });
 
