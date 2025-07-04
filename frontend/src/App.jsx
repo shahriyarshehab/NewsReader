@@ -7,7 +7,7 @@ const App = () => {
   const [visibleCount, setVisibleCount] = useState(10);
 
   useEffect(() => {
-    let url = "http://localhost:5000/feed";
+    let url = import.meta.env.VITE_APP_BACKEND_URL + "/feed";
     if (category !== "all") {
       url += "?source=" + category;
     }

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const Parser = require("rss-parser");
@@ -7,9 +8,9 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const feeds = {
-  prothomalo: "https://www.prothomalo.com/feed/",
-  kalerkantho: "https://www.kalerkantho.com/rss.xml",
-  bbc: "https://www.bbc.com/bengali/index.xml"
+  prothomalo: process.env.PROTHOMALO_FEED,
+  kalerkantho: process.env.KALERKANTHO_FEED,
+  bbc: process.env.BBC_FEED
 };
 
 app.use(cors());

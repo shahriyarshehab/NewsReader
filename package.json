@@ -21,6 +21,7 @@
     "client": "cd frontend && npm run dev"
   },
   "dependencies": {
-    "concurrently": "^9.1.2"
+    "concurrently": "^9.1.2",
+    "dotenv": "^17.0.1"
   }
 }
