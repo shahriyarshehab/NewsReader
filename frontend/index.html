@@ -4,7 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bangladeshi News Reader</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        body.dark-theme {
+            background-color: #333;
+            color: #f4f4f4;
+        }
+
+        body.dark-theme .news-item {
+            background-color: #555;
+            color: #f4f4f4;
+        }
+
+        body.dark-theme .news-item h2 {
+            color: #87CEEB;
+        }
+
+        body.dark-theme .news-item a {
+            color: #87CEEB;
+        }
+
+        body.dark-theme .news-item p {
+            color: #ccc;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1em 0;
+            text-align: center;
+        }
+
+        header button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        header button:hover {
+            background-color: #0056b3;
+        }
+
+        .category-selection {
+            margin-top: 10px;
+        }
+
+        .category-selection label {
+            color: #fff;
+            margin-right: 5px;
+        }
+
+        .category-selection select {
+            padding: 5px;
+            border-radius: 5px;
+            border: none;
+        }
+
+        main {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .news-item {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        .news-item h2 {
+            margin-top: 0;
+            color: #0056b3;
+        }
+
+        .news-item a {
+            text-decoration: none;
+            color: #0056b3;
+        }
+
+        .news-item a:hover {
+            text-decoration: underline;
+        }
+
+        .news-item p {
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -23,6 +122,92 @@
     <main id="news-container">
         <p>Loading news...</p>
     </main>
-    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const newsContainer = document.getElementById('news-container');
+            const themeToggle = document.getElementById('theme-toggle');
+            const categorySelect = document.getElementById('category');
+
+            const feeds = [
+                { name: 'prothomalo', url: 'https://www.prothomalo.com/feed/' },
+                { name: 'kalerkantho', url: 'https://www.kalerkantho.com/rss.xml' },
+                { name: 'bbc', url: 'https://www.bbc.com/bengali/index.xml' }
+            ];
+
+            const RSS_TO_JSON_PROXY = 'https://api.rss2json.com/v1/api.json?rss_url=';
+
+            // Theme toggle logic
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme) {
+                document.body.classList.add(currentTheme);
+            }
+
+            themeToggle.addEventListener('click', () => {
+                document.body.classList.toggle('dark-theme');
+                let theme = 'light-theme';
+                if (document.body.classList.contains('dark-theme')) {
+                    theme = 'dark-theme';
+                }
+                localStorage.setItem('theme', theme);
+            });
+
+            // Category selection logic
+            categorySelect.addEventListener('change', fetchNews);
+
+            async function fetchNews() {
+                newsContainer.innerHTML = ''; // Clear loading message
+                const selectedCategory = categorySelect.value;
+
+                const feedsToFetch = selectedCategory === 'all'
+                    ? feeds
+                    : feeds.filter(feed => feed.name === selectedCategory);
+
+                for (const feed of feedsToFetch) {
+                    try {
+                        const response = await fetch(RSS_TO_JSON_PROXY + encodeURIComponent(feed.url));
+                        const data = await response.json();
+
+                        if (data.status === 'ok') {
+                            data.items.forEach(item => {
+                                const newsItem = document.createElement('div');
+                                newsItem.classList.add('news-item');
+
+                                const title = document.createElement('h2');
+                                const link = document.createElement('a');
+                                link.href = item.link;
+                                link.target = '_blank';
+                                link.textContent = item.title;
+                                title.appendChild(link);
+
+                                const pubDate = document.createElement('p');
+                                pubDate.textContent = `Published: ${new Date(item.pubDate).toLocaleString()}`;
+
+                                const description = document.createElement('p');
+                                description.innerHTML = item.description;
+
+                                newsItem.appendChild(title);
+                                newsItem.appendChild(pubDate);
+                                newsItem.appendChild(description);
+
+                                newsContainer.appendChild(newsItem);
+                            });
+                        } else {
+                            console.error('Error fetching feed:', data.message);
+                            const errorDiv = document.createElement('div');
+                            errorDiv.textContent = `Failed to load news from ${feed.url}: ${data.message}`;
+                            newsContainer.appendChild(errorDiv);
+                        }
+                    } catch (error) {
+                        console.error('Error fetching or parsing feed:', error);
+                        const errorDiv = document.createElement('div');
+                        errorDiv.textContent = `Failed to load news from ${feed.url}: ${error.message}`;
+                        newsContainer.appendChild(errorDiv);
+                    }
+                }
+            }
+
+            fetchNews();
+        });
+    </script>
 </body>
 </html>
