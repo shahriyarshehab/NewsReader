@@ -3,127 +3,107 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RSS Reader BD</title>
+    <title>Simple RSS Reader</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body class="font-sans bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
-    <header class="bg-gray-800 text-white p-4 text-center">
-        <h1 class="text-3xl font-bold">RSS Reader BD</h1>
-        <button id="theme-toggle" class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition-colors duration-300">Toggle Dark Mode</button>
+    <header class="bg-blue-600 text-white p-4 dark:bg-gray-800">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center justify-center flex-grow">
+                <i class="fas fa-rss text-3xl text-white mr-2"></i>
+                <h1 class="text-3xl font-bold">Simple RSS Reader</h1>
+                <p class="text-sm block text-center">by Shahriyar Shehab</p>
+            </div>
+            <button id="theme-toggle" class="bg-blue-600 hover:bg-blue-700 text-white py-3 px-5 rounded-md transition-colors duration-300 text-lg"><i class="fas fa-moon"></i></button>
+        </div>
         <div class="category-selection mt-4">
             <label for="category" class="mr-2">Category:</label>
             <select id="category" class="p-2 rounded-md border border-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-100">
                 <option value="all">All</option>
-                <option value="prothomalo">Prothom Alo</option>
+                <option value="Prothom Alo">Prothom Alo</option>
                 <option value="Kaler Kantho">Kaler Kantho</option>
-                <option value="bbc">BBC Bengali</option>
-                <option value="Google News BD">Google News BD</option>
+                <option value="BBC Bengali">BBC Bengali</option>
+                <option value="The Daily Star">The Daily Star</option>
+                <option value="Bangladesh Pratidin">Bangladesh Pratidin</option>
+                <option value="BDNews24.com">BDNews24.com</option>
+                <option value="BBC News - World">BBC News - World</option>
+                <option value="The Guardian - World news">The Guardian - World news</option>
             </select>
-        </div>
-        <div class="custom-rss-input mt-4">
-            <input type="text" id="custom-rss-url" placeholder="Enter custom RSS URL" class="p-2 rounded-md border border-gray-300 text-gray-800 dark:bg-gray-700 dark:text-gray-100 w-full sm:w-auto">
-            <button id="add-custom-rss" class="mt-2 sm:mt-0 sm:ml-2 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition-colors duration-300">Add Custom RSS</button>
         </div>
     </header>
     <main id="news-container" class="p-4 flex flex-col gap-4 max-w-3xl mx-auto">
         <p>Loading news...</p>
     </main>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const newsContainer = document.getElementById('news-container');
-            const themeToggle = document.getElementById('theme-toggle');
             const categorySelect = document.getElementById('category');
-            const customRssUrlInput = document.getElementById('custom-rss-url');
-            const addCustomRssButton = document.getElementById('add-custom-rss');
+            const themeToggle = document.getElementById('theme-toggle');
 
-            const CUSTOM_FEEDS_STORAGE_KEY = 'customFeeds';
-
-            let feeds = [
-                { name: 'Prothom Alo', url: 'https://www.prothomalo.com/feed/', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Prothom_Alo_Logo.svg/1200px-Prothom_Alo_Logo.svg.png' },
-                { name: 'Kaler Kantho', url: 'https://www.kalerkantho.com/rss.xml', img: 'https://www.kalerkantho.com/assets/news_portal/images/logo.png' },
-                { name: 'BBC Bengali', url: 'https://www.bbc.com/bengali/index.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
-                { name: 'Google News BD', url: 'https://news.google.com/rss/search?q=বাংলাদেশ খবর', img: 'https://upload.wikimedia.org/wikipedia/commons/0/0b/File%3AGoogle_News_icon.svg' }
-            ];
-
-            const RSS_TO_JSON_PROXY = (() => {
-                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                    // Development environment
-                    return 'https://api.rss2json.com/v1/api.json?rss_url='; // Or a different dev proxy
-                } else {
-                    // Production or other environments (e.g., Vercel)
-                    return 'https://api.rss2json.com/v1/api.json?rss_url=';
-                }
-            })();
-
-            function loadCustomFeeds() {
-                const storedFeeds = localStorage.getItem(CUSTOM_FEEDS_STORAGE_KEY);
-                if (storedFeeds) {
-                    feeds = feeds.concat(JSON.parse(storedFeeds));
-                }
-            }
-
-            function saveCustomFeeds() {
-                const customFeeds = feeds.filter(feed => feed.custom);
-                localStorage.setItem(CUSTOM_FEEDS_STORAGE_KEY, JSON.stringify(customFeeds));
-            }
-
-            function updateCategoryDropdown() {
-                categorySelect.innerHTML = '<option value="all">All</option>';
-                feeds.forEach(feed => {
-                    const option = document.createElement('option');
-                    option.value = feed.name;
-                    option.textContent = feed.name;
-                    categorySelect.appendChild(option);
-                });
-            }
-
-            // Theme toggle logic
             // Theme toggle logic
             const htmlElement = document.documentElement;
-            const currentTheme = localStorage.getItem('theme');
+            const currentTheme = localStorage.getItem('theme') || 'light'; // Default to light
 
+            function updateThemeIcon() {
+                if (htmlElement.classList.contains('dark')) {
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>'; // Sun icon for dark mode
+                } else {
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>'; // Moon icon for light mode
+                }
+            }
+
+            // Apply initial theme
             if (currentTheme === 'dark') {
                 htmlElement.classList.add('dark');
             } else {
                 htmlElement.classList.remove('dark');
             }
 
+            updateThemeIcon(); // Set initial icon
+
             themeToggle.addEventListener('click', () => {
+                htmlElement.classList.toggle('dark'); // Toggle the dark class
+
                 if (htmlElement.classList.contains('dark')) {
-                    htmlElement.classList.remove('dark');
-                    localStorage.setItem('theme', 'light');
-                } else {
-                    htmlElement.classList.add('dark');
                     localStorage.setItem('theme', 'dark');
-                }
-            });
-
-            // Category selection logic
-            categorySelect.addEventListener('change', fetchNews);
-
-            addCustomRssButton.addEventListener('click', () => {
-                const customUrl = customRssUrlInput.value.trim();
-                if (customUrl) {
-                    // Basic URL validation
-                    try {
-                        new URL(customUrl);
-                        const newFeedName = `Custom Feed ${feeds.filter(f => f.custom).length + 1}`;
-                        feeds.push({ name: newFeedName, url: customUrl, custom: true });
-                        saveCustomFeeds();
-                        updateCategoryDropdown();
-                        fetchNews();
-                        customRssUrlInput.value = ''; // Clear input
-                    } catch (e) {
-                        alert('Please enter a valid URL.');
-                    }
                 } else {
-                    alert('Please enter an RSS URL.');
+                    localStorage.setItem('theme', 'light');
                 }
+                updateThemeIcon(); // Update icon after theme change
             });
+
+            const feeds = [
+                { name: 'Prothom Alo', url: 'https://prod-qt-images.s3.amazonaws.com/production/prothomalo-bangla/feed.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Prothom_Alo_Logo.svg/1200px-Prothom_Alo_Logo.svg.png' },
+                { name: 'Kaler Kantho', url: 'https://www.kalerkantho.com/rss.xml', img: 'https://www.kalerkantho.com/assets/news_portal/images/logo.png' },
+                { name: 'BBC Bengali', url: 'https://www.bbc.com/bengali/index.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
+                { name: 'The Daily Star', url: 'https://www.thedailystar.net/frontpage/rss.xml', img: 'https://www.thedailystar.net/sites/all/themes/thedailystar/logo.png' },
+                { name: 'Bangladesh Pratidin', url: 'https://www.bd-pratidin.com/rss.xml', img: 'https://www.bd-pratidin.com/assets/news_portal/images/logo.png' },
+                { name: 'BDNews24.com', url: 'https://www.banglanews24.com/rss/rss.xml', img: 'https://www.banglanews24.com/assets/news_portal/images/logo.png' },
+                { name: 'BBC News - World', url: 'http://feeds.bbci.co.uk/news/world/rss.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
+                { name: 'The Guardian - World news', url: 'https://www.theguardian.com/world/rss', img: 'https://assets.guim.co.uk/images/favicons/46bd2faa1253e65a3448924976647244/32x32.ico' },
+            ];
 
             async function fetchNews() {
-                newsContainer.innerHTML = ''; // Clear loading message
+                newsContainer.innerHTML = '<div class="loader"></div>'; // Show spinner
+                let hasLoadedNews = false; // Flag to track if any news was loaded
                 const selectedCategory = categorySelect.value;
 
                 const feedsToFetch = selectedCategory === 'all'
@@ -132,75 +112,92 @@
 
                 for (const feed of feedsToFetch) {
                     try {
-                        const response = await fetch(RSS_TO_JSON_PROXY + encodeURIComponent(feed.url));
+                        const response = await fetch('https://api.rss2json.com/v1/api.json?rss_url=' + encodeURIComponent(feed.url));
                         const data = await response.json();
 
-                        if (data.status === 'ok') {
+                        if (data.status === 'ok' && data.items && data.items.length > 0) {
+                            // Clear spinner once first feed starts loading successfully
+                            if (!hasLoadedNews) {
+                                newsContainer.innerHTML = ''; // Clear the spinner
+                            }
                             data.items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).forEach(item => {
                                 const newsItem = document.createElement('div');
-                                newsItem.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'p-4', 'dark:bg-gray-700', 'dark:text-gray-100', 'flex', 'items-start', 'space-x-4');
+                                newsItem.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'p-4', 'flex', 'items-start', 'space-x-4', 'dark:bg-gray-700', 'dark:text-gray-100');
 
                                 const contentWrapper = document.createElement('div');
                                 contentWrapper.classList.add('flex-1');
 
-                                const feedInfo = feedsToFetch.find(f => encodeURIComponent(f.url) === encodeURIComponent(feed.url));
+                                const img = document.createElement('img');
+                                img.src = feed.img || 'https://via.placeholder.com/150?text=No+Image'; // Placeholder image
+                                img.alt = feed.name;
+                                img.classList.add('w-16', 'h-16', 'object-contain', 'flex-shrink-0');
+                                newsItem.appendChild(img);
 
-                                if (feedInfo && feedInfo.img) {
-                                    const img = document.createElement('img');
-                                    img.src = feedInfo.img;
-                                    img.alt = feedInfo.name;
-                                    img.classList.add('w-16', 'h-16', 'object-contain', 'flex-shrink-0');
-                                    newsItem.appendChild(img);
-                                }
+                                const newspaperName = document.createElement('p');
+                                newspaperName.textContent = feed.name;
+                                newspaperName.classList.add('text-sm', 'font-semibold', 'text-gray-600', 'mb-1', 'dark:text-gray-300');
+                                contentWrapper.appendChild(newspaperName);
 
-                                if (feedInfo && feedInfo.name) {
-                                    const newspaperName = document.createElement('p');
-                                    newspaperName.textContent = feedInfo.name;
-                                    newspaperName.classList.add('text-sm', 'font-semibold', 'text-gray-600', 'dark:text-gray-300', 'mb-1');
-                                    contentWrapper.appendChild(newspaperName);
-                                }
-
+                                const titleDiv = document.createElement('div');
                                 const title = document.createElement('h2');
-                                title.classList.add('text-lg', 'font-semibold', 'mb-1', 'text-blue-600', 'dark:text-blue-400');
+                                title.classList.add('text-lg', 'font-semibold', 'mb-1', 'text-blue-600');
                                 const link = document.createElement('a');
                                 link.classList.add('hover:underline');
                                 link.href = item.link;
                                 link.target = '_blank';
                                 link.textContent = item.title;
                                 title.appendChild(link);
+                                titleDiv.appendChild(title);
+                                contentWrapper.appendChild(titleDiv);
 
+                                const pubDateDiv = document.createElement('div');
                                 const pubDate = document.createElement('p');
-                                pubDate.classList.add('text-xs', 'text-gray-500', 'dark:text-gray-400', 'mb-1');
+                                pubDate.classList.add('text-xs', 'text-gray-500', 'mb-1');
                                 pubDate.textContent = `Published: ${new Date(item.pubDate).toLocaleString()}`;
+                                pubDateDiv.appendChild(pubDate);
+                                contentWrapper.appendChild(pubDateDiv);
 
+                                const descriptionDiv = document.createElement('div');
                                 const description = document.createElement('p');
                                 description.classList.add('text-sm', 'text-gray-700', 'dark:text-gray-300');
-                                description.innerHTML = item.description;
+                                description.innerHTML = (item.description || item.content || '').substring(0, 200) + '...';
+                                descriptionDiv.appendChild(description);
+                                contentWrapper.appendChild(descriptionDiv);
 
-                                contentWrapper.appendChild(title);
-                                contentWrapper.appendChild(pubDate);
-                                contentWrapper.appendChild(description);
+                                const readMoreDiv = document.createElement('div');
+                                const readMoreButton = document.createElement('a');
+                                readMoreButton.classList.add('mt-2', 'inline-block', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm', 'transition-colors', 'duration-300', 'mx-auto', 'md:ml-auto', 'md:mr-0');
+                                readMoreButton.href = item.link;
+                                readMoreButton.target = '_blank';
+                                readMoreButton.textContent = 'Read More';
+                                readMoreDiv.appendChild(readMoreButton);
+                                contentWrapper.appendChild(readMoreDiv);
 
                                 newsItem.appendChild(contentWrapper);
+                                newsContainer.appendChild(newsItem);
+                                hasLoadedNews = true; // Set flag to true if any news is loaded
                             });
                         } else {
-                            console.error('Error fetching feed:', data.message);
                             const errorDiv = document.createElement('div');
-                            errorDiv.textContent = `Failed to load news from ${feed.url}: ${data.message}`;
+                            errorDiv.textContent = `No items found for ${feed.name} or API error: ${data.message || 'Unknown error'}`;
+                            errorDiv.classList.add('text-red-500');
                             newsContainer.appendChild(errorDiv);
                         }
                     } catch (error) {
-                        console.error('Error fetching or parsing feed:', error);
+                        console.error(`Error fetching or parsing feed from ${feed.name}:`, error);
                         const errorDiv = document.createElement('div');
-                        errorDiv.textContent = `Failed to load news from ${feed.url}: ${error.message}`;
+                        errorDiv.textContent = `Failed to load news from ${feed.name}: ${error.message}`;
+                        errorDiv.classList.add('text-red-500');
                         newsContainer.appendChild(errorDiv);
                     }
+                }
+                if (!hasLoadedNews) {
+                    newsContainer.innerHTML = '<p>No news loaded. Please check feed URLs or network connection.</p>';
                 }
             }
 
             // Initial load
-            loadCustomFeeds();
-            updateCategoryDropdown();
+            categorySelect.addEventListener('change', fetchNews);
             fetchNews();
         });
     </script>
