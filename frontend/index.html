@@ -45,8 +45,10 @@
                 <option value="BDNews24.com">BDNews24.com</option>
                 <option value="BBC News - World">BBC News - World</option>
                 <option value="The Guardian - World news">The Guardian - World news</option>
+                <option value="The Business Standard (TBS) Bangla">The Business Standard (TBS) Bangla</option>
             </select>
         </div>
+        <div id="prothom-alo-category-buttons" class="flex flex-wrap justify-center gap-2 mt-4 hidden"></div>
     </header>
     <main id="news-container" class="p-4 flex flex-col gap-4 max-w-3xl mx-auto">
         <p>Loading news...</p>
@@ -91,7 +93,7 @@
             });
 
             const feeds = [
-                { name: 'Prothom Alo', url: 'https://prod-qt-images.s3.amazonaws.com/production/prothomalo-bangla/feed.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Prothom_Alo_Logo.svg/1200px-Prothom_Alo_Logo.svg.png' },
+                { name: 'Prothom Alo', url: 'https://www.prothomalo.com/feed', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Prothom_Alo_Logo.svg/1200px-Prothom_Alo_Logo.svg.png' },
                 { name: 'Kaler Kantho', url: 'https://www.kalerkantho.com/rss.xml', img: 'https://www.kalerkantho.com/assets/news_portal/images/logo.png' },
                 { name: 'BBC Bengali', url: 'https://www.bbc.com/bengali/index.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
                 { name: 'The Daily Star', url: 'https://www.thedailystar.net/frontpage/rss.xml', img: 'https://www.thedailystar.net/sites/all/themes/thedailystar/logo.png' },
@@ -99,16 +101,24 @@
                 { name: 'BDNews24.com', url: 'https://www.banglanews24.com/rss/rss.xml', img: 'https://www.banglanews24.com/assets/news_portal/images/logo.png' },
                 { name: 'BBC News - World', url: 'http://feeds.bbci.co.uk/news/world/rss.xml', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
                 { name: 'The Guardian - World news', url: 'https://www.theguardian.com/world/rss', img: 'https://assets.guim.co.uk/images/favicons/46bd2faa1253e65a3448924976647244/32x32.ico' },
+                { name: 'The Business Standard (TBS) Bangla', url: 'https://www.tbsnews.net/bangla/rss.xml', img: 'https://www.tbsnews.net/sites/all/themes/tbsnews/logo.png' },
             ];
 
             async function fetchNews() {
                 newsContainer.innerHTML = '<div class="loader"></div>'; // Show spinner
-                let hasLoadedNews = false; // Flag to track if any news was loaded
-                const selectedCategory = categorySelect.value;
+                let allNewsItems = [];
 
-                const feedsToFetch = selectedCategory === 'all'
-                    ? feeds
-                    : feeds.filter(feed => feed.name === selectedCategory);
+                const selectedCategory = categorySelect.value;
+                let feedsToFetch = [];
+
+                if (selectedCategory === 'all') {
+                    feedsToFetch = feeds;
+                } else {
+                    const selectedFeed = feeds.find(feed => feed.name === selectedCategory);
+                    if (selectedFeed) {
+                        feedsToFetch.push(selectedFeed);
+                    }
+                }
 
                 for (const feed of feedsToFetch) {
                     try {
@@ -116,82 +126,83 @@
                         const data = await response.json();
 
                         if (data.status === 'ok' && data.items && data.items.length > 0) {
-                            // Clear spinner once first feed starts loading successfully
-                            if (!hasLoadedNews) {
-                                newsContainer.innerHTML = ''; // Clear the spinner
-                            }
-                            data.items.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate)).forEach(item => {
-                                const newsItem = document.createElement('div');
-                                newsItem.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'p-4', 'flex', 'items-start', 'space-x-4', 'dark:bg-gray-700', 'dark:text-gray-100');
-
-                                const contentWrapper = document.createElement('div');
-                                contentWrapper.classList.add('flex-1');
-
-                                const img = document.createElement('img');
-                                img.src = feed.img || 'https://via.placeholder.com/150?text=No+Image'; // Placeholder image
-                                img.alt = feed.name;
-                                img.classList.add('w-16', 'h-16', 'object-contain', 'flex-shrink-0');
-                                newsItem.appendChild(img);
-
-                                const newspaperName = document.createElement('p');
-                                newspaperName.textContent = feed.name;
-                                newspaperName.classList.add('text-sm', 'font-semibold', 'text-gray-600', 'mb-1', 'dark:text-gray-300');
-                                contentWrapper.appendChild(newspaperName);
-
-                                const titleDiv = document.createElement('div');
-                                const title = document.createElement('h2');
-                                title.classList.add('text-lg', 'font-semibold', 'mb-1', 'text-blue-600');
-                                const link = document.createElement('a');
-                                link.classList.add('hover:underline');
-                                link.href = item.link;
-                                link.target = '_blank';
-                                link.textContent = item.title;
-                                title.appendChild(link);
-                                titleDiv.appendChild(title);
-                                contentWrapper.appendChild(titleDiv);
-
-                                const pubDateDiv = document.createElement('div');
-                                const pubDate = document.createElement('p');
-                                pubDate.classList.add('text-xs', 'text-gray-500', 'mb-1');
-                                pubDate.textContent = `Published: ${new Date(item.pubDate).toLocaleString()}`;
-                                pubDateDiv.appendChild(pubDate);
-                                contentWrapper.appendChild(pubDateDiv);
-
-                                const descriptionDiv = document.createElement('div');
-                                const description = document.createElement('p');
-                                description.classList.add('text-sm', 'text-gray-700', 'dark:text-gray-300');
-                                description.innerHTML = (item.description || item.content || '').substring(0, 200) + '...';
-                                descriptionDiv.appendChild(description);
-                                contentWrapper.appendChild(descriptionDiv);
-
-                                const readMoreDiv = document.createElement('div');
-                                const readMoreButton = document.createElement('a');
-                                readMoreButton.classList.add('mt-2', 'inline-block', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm', 'transition-colors', 'duration-300', 'mx-auto', 'md:ml-auto', 'md:mr-0');
-                                readMoreButton.href = item.link;
-                                readMoreButton.target = '_blank';
-                                readMoreButton.textContent = 'Read More';
-                                readMoreDiv.appendChild(readMoreButton);
-                                contentWrapper.appendChild(readMoreDiv);
-
-                                newsItem.appendChild(contentWrapper);
-                                newsContainer.appendChild(newsItem);
-                                hasLoadedNews = true; // Set flag to true if any news is loaded
+                            data.items.forEach(item => {
+                                allNewsItems.push({
+                                    ...item,
+                                    feedName: feed.name,
+                                    feedImg: feed.img
+                                });
                             });
                         } else {
-                            const errorDiv = document.createElement('div');
-                            errorDiv.textContent = `No items found for ${feed.name} or API error: ${data.message || 'Unknown error'}`;
-                            errorDiv.classList.add('text-red-500');
-                            newsContainer.appendChild(errorDiv);
+                            console.error(`No items found for ${feed.name} or API error: ${data.message || 'Unknown error'}`);
                         }
                     } catch (error) {
                         console.error(`Error fetching or parsing feed from ${feed.name}:`, error);
-                        const errorDiv = document.createElement('div');
-                        errorDiv.textContent = `Failed to load news from ${feed.name}: ${error.message}`;
-                        errorDiv.classList.add('text-red-500');
-                        newsContainer.appendChild(errorDiv);
                     }
                 }
-                if (!hasLoadedNews) {
+
+                allNewsItems.sort((a, b) => new Date(b.pubDate) - new Date(a.pubDate));
+
+                if (allNewsItems.length > 0) {
+                    newsContainer.innerHTML = ''; // Clear the spinner
+                    allNewsItems.forEach(item => {
+                        const newsItem = document.createElement('div');
+                        newsItem.classList.add('bg-white', 'rounded-lg', 'shadow-md', 'p-4', 'flex', 'items-start', 'space-x-4', 'dark:bg-gray-700', 'dark:text-gray-100');
+
+                        const contentWrapper = document.createElement('div');
+                        contentWrapper.classList.add('flex-1');
+
+                        
+
+                        const newspaperName = document.createElement('p');
+                        newspaperName.textContent = item.feedName;
+                        newspaperName.classList.add('text-sm', 'font-semibold', 'text-gray-600', 'mb-1', 'dark:text-gray-300');
+                        contentWrapper.appendChild(newspaperName);
+
+                        const titleDiv = document.createElement('div');
+                        const title = document.createElement('h2');
+                        title.classList.add('text-lg', 'font-semibold', 'mb-1', 'text-blue-600');
+                        const link = document.createElement('a');
+                                link.classList.add('hover:underline', 'news-title-link');
+                                link.textContent = item.title;
+                                link.addEventListener('click', (e) => {
+                                    e.preventDefault(); // Prevent default link behavior
+                                    modalTitle.textContent = item.title;
+                                    modalContent.innerHTML = item.description || item.content || 'No detailed content available.';
+                                    modalReadMoreButton.href = item.link;
+                                    modal.classList.remove('hidden');
+                                });
+                        title.appendChild(link);
+                        titleDiv.appendChild(title);
+                        contentWrapper.appendChild(titleDiv);
+
+                        const pubDateDiv = document.createElement('div');
+                        const pubDate = document.createElement('p');
+                        pubDate.classList.add('text-xs', 'text-gray-500', 'mb-1');
+                        pubDate.textContent = `Published: ${new Date(item.pubDate).toLocaleString()}`;
+                        pubDateDiv.appendChild(pubDate);
+                        contentWrapper.appendChild(pubDateDiv);
+
+                        const descriptionDiv = document.createElement('div');
+                        const description = document.createElement('p');
+                        description.classList.add('text-sm', 'text-gray-700', 'dark:text-gray-300');
+                        description.innerHTML = (item.description || item.content || '').substring(0, 200) + '...';
+                        descriptionDiv.appendChild(description);
+                        contentWrapper.appendChild(descriptionDiv);
+
+                        const readMoreDiv = document.createElement('div');
+                        const readMoreButton = document.createElement('a');
+                        readMoreButton.classList.add('mt-2', 'inline-block', 'bg-blue-500', 'hover:bg-blue-600', 'text-white', 'py-1', 'px-3', 'rounded-md', 'text-sm', 'transition-colors', 'duration-300', 'mx-auto', 'md:ml-auto', 'md:mr-0');
+                        readMoreButton.href = item.link;
+                        readMoreButton.target = '_blank';
+                        readMoreButton.textContent = 'Read More';
+                        readMoreDiv.appendChild(readMoreButton);
+                        contentWrapper.appendChild(readMoreDiv);
+
+                        newsItem.appendChild(contentWrapper);
+                        newsContainer.appendChild(newsItem);
+                    });
+                } else {
                     newsContainer.innerHTML = '<p>No news loaded. Please check feed URLs or network connection.</p>';
                 }
             }
