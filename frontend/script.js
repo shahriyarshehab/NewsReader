@@ -82,16 +82,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (currentCategory === 'info') {
                     newsContainer.innerHTML = `
-                        <div class="bg-white rounded-lg shadow-md p-4 dark:bg-gray-700 dark:text-gray-100">
-                            <h2 class="text-xl font-bold mb-2">Developer Information</h2>
-                            <p>This application was developed by [Your Name/Team Name].</p>
-                            <p>Version: 1.0.0</p>
-                            <p>Contact: [Your Contact Email/Info]</p>
-                        </div>
-                        <div class="bg-white rounded-lg shadow-md p-4 mt-4 dark:bg-gray-700 dark:text-gray-100">
-                            <h2 class="text-xl font-bold mb-2">User Feedback</h2>
-                            <p>We appreciate your feedback! Please send your suggestions and bug reports to [Your Feedback Email/Link].</p>
-                        </div>
+                        <section class="p-6 bg-white rounded-xl shadow-md max-w-md mx-auto">
+                          <h2 class="text-2xl font-bold mb-4 text-center">App Info</h2>
+
+                          <!-- Profile 1 -->
+                          <div class="flex items-center mb-4">
+                            <div class="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
+                            <div>
+                              <p class="font-semibold">Name One</p>
+                              <p class="text-sm text-gray-600">Role One</p>
+                              <div class="flex gap-2 mt-2">
+                                <div class="w-5 h-5 bg-gray-400 rounded"></div>
+                                <div class="w-5 h-5 bg-gray-400 rounded"></div>
+                                <div class="w-5 h-5 bg-gray-400 rounded"></div>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- Profile 2 -->
+                          <div class="flex items-center">
+                            <div class="w-16 h-16 bg-gray-300 rounded-full mr-4"></div>
+                            <div>
+                              <p class="font-semibold">Name Two</p>
+                              <p class="text-sm text-gray-600">Role Two</p>
+                              <div class="flex gap-2 mt-2">
+                                <div class="w-5 h-5 bg-gray-400 rounded"></div>
+                                <div class="w-5 h-5 bg-gray-400 rounded"></div>
+                                <div class="w-5 h-5 bg-gray-400 rounded"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </section>
                     `;
                     return;
                 }
