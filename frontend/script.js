@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const mobileMenu = document.getElementById('mobile-menu');
     const menuLinks = mobileMenu.querySelectorAll('a');
     const newspaperMenu = document.getElementById('newspaper-menu');
+    const successPopupOverlay = document.getElementById('success-popup-overlay');
+    const popupCloseButton = document.getElementById('popup-close-button');
 
     menuToggle.addEventListener('click', () => {
         mobileMenu.classList.remove('-translate-x-full');
@@ -12,6 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     closeMenu.addEventListener('click', () => {
         mobileMenu.classList.add('-translate-x-full');
+    });
+
+    popupCloseButton.addEventListener('click', () => {
+        successPopupOverlay.classList.remove('show');
     });
 
     const feeds = [
@@ -136,6 +142,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await response.text();
                 newsContainer.innerHTML = data;
                 newspaperMenu.innerHTML = ''; // Clear newspaper menu for 'info' category
+
+                // Add event listener for the feedback form after content is loaded
+                setTimeout(() => {
+                    const feedbackForm = document.getElementById('feedback-form');
+                    if (feedbackForm) {
+                        feedbackForm.addEventListener('submit', async (e) => {
+                            e.preventDefault();
+                            const formData = new FormData(feedbackForm);
+                            try {
+                                const response = await fetch(feedbackForm.action, {
+                                    method: feedbackForm.method,
+                                    body: formData,
+                                    headers: {
+                                        'Accept': 'application/json'
+                                    }
+                                });
+                                if (response.ok) {
+                                    successPopupOverlay.classList.add('show');
+                                    setTimeout(() => {
+                                        successPopupOverlay.classList.remove('show');
+                                    }, 3000); // Hide after 3 seconds
+                                    feedbackForm.reset();
+                                } else {
+                                    console.error('Form submission failed:', response.statusText);
+                                    alert('Failed to send feedback. Please try again.');
+                                }
+                            } catch (error) {
+                                console.error('Error submitting form:', error);
+                                alert('An error occurred. Please try again.');
+                            }
+                        });
+                    }
+                }, 0); // Use setTimeout to ensure DOM is updated
+
             } catch (error) {
                 console.error('Error fetching about content:', error);
                 newsContainer.innerHTML = '<p>Error loading about information.</p>';
