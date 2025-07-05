@@ -146,6 +146,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add event listener for the feedback form after content is loaded
                 setTimeout(() => {
                     const feedbackForm = document.getElementById('feedback-form');
+                    const openFeedbackPopupButton = document.getElementById('open-feedback-popup');
+                    const feedbackPopupOverlay = document.getElementById('feedback-popup-overlay');
+                    const feedbackPopupBackButton = document.getElementById('feedback-popup-back-button');
+
                     if (feedbackForm) {
                         feedbackForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
@@ -159,6 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     }
                                 });
                                 if (response.ok) {
+                                    feedbackPopupOverlay.classList.remove('show'); // Hide feedback popup
                                     successPopupOverlay.classList.add('show');
                                     setTimeout(() => {
                                         successPopupOverlay.classList.remove('show');
@@ -174,6 +179,19 @@ document.addEventListener('DOMContentLoaded', () => {
                             }
                         });
                     }
+
+                    if (openFeedbackPopupButton) {
+                        openFeedbackPopupButton.addEventListener('click', () => {
+                            feedbackPopupOverlay.classList.add('show');
+                        });
+                    }
+
+                    if (feedbackPopupBackButton) {
+                        feedbackPopupBackButton.addEventListener('click', () => {
+                            feedbackPopupOverlay.classList.remove('show');
+                        });
+                    }
+
                 }, 0); // Use setTimeout to ensure DOM is updated
 
             } catch (error) {

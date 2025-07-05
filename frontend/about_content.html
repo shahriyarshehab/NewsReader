@@ -39,25 +39,31 @@
         </div>
     </section>
 
-    <section class="contact-form p-6 bg-white rounded-xl shadow-md max-w-md mx-auto mt-8 dark:bg-gray-800 dark:text-gray-100 md:w-1/2 md:mt-0">
-        <h3 class="h3 form-title text-2xl font-bold mb-4 text-center">Contact Form</h3>
+        <button id="open-feedback-popup" class="mt-4 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md text-sm transition-colors duration-300 w-full">Tell Developer Some Idea</button>
 
-        <form action="https://formspree.io/f/manjkavg" method="POST" class="form" id="feedback-form">
+        <!-- Feedback Pop-up -->
+        <div id="feedback-popup-overlay" class="feedback-popup-overlay">
+            <div class="feedback-popup-content">
+                <button id="feedback-popup-back-button" class="feedback-popup-back-button"><i class="fas fa-arrow-left"></i></button>
+                <h3 class="h3 form-title text-2xl font-bold mb-4 text-center">Contact Form</h3>
 
-            <div class="input-wrapper mb-4">
-                <input type="text" name="fullname" class="form-input w-full p-2 mb-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Full name" required data-form-input>
+                <form action="https://formspree.io/f/manjkavg" method="POST" class="form" id="feedback-form">
 
-                <input type="email" name="email" class="form-input w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Email address" required data-form-input>
+                    <div class="input-wrapper mb-4">
+                        <input type="text" name="fullname" class="form-input w-full p-2 mb-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Full name" required data-form-input>
+
+                        <input type="email" name="email" class="form-input w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Email address" required data-form-input>
+                    </div>
+
+                    <textarea name="message" class="form-input w-full p-2 mb-4 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Your Message" required data-form-input></textarea>
+
+                    <button class="form-btn bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md text-sm transition-colors duration-300 w-full" type="submit" data-form-btn>
+                        <ion-icon name="paper-plane"></ion-icon>
+                        <span>Send Message</span>
+                    </button>
+
+                </form>
             </div>
+        </div>
 
-            <textarea name="message" class="form-input w-full p-2 mb-4 border border-gray-300 rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100" placeholder="Your Message" required data-form-input></textarea>
-
-            <button class="form-btn bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md text-sm transition-colors duration-300 w-full" type="submit" data-form-btn>
-                <ion-icon name="paper-plane"></ion-icon>
-                <span>Send Message</span>
-            </button>
-
-        </form>
-
-    </section>
-</div>
+    </div>
