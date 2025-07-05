@@ -150,9 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     const feedbackPopupOverlay = document.getElementById('feedback-popup-overlay');
                     const feedbackPopupBackButton = document.getElementById('feedback-popup-back-button');
 
+                    console.log('Feedback Form Element:', feedbackForm);
+                    console.log('Open Feedback Button Element:', openFeedbackPopupButton);
+                    console.log('Feedback Popup Overlay Element:', feedbackPopupOverlay);
+                    console.log('Feedback Popup Back Button Element:', feedbackPopupBackButton);
+
                     if (feedbackForm) {
                         feedbackForm.addEventListener('submit', async (e) => {
                             e.preventDefault();
+                            console.log('Feedback form submitted!');
                             const formData = new FormData(feedbackForm);
                             try {
                                 const response = await fetch(feedbackForm.action, {
@@ -169,6 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         successPopupOverlay.classList.remove('show');
                                     }, 3000); // Hide after 3 seconds
                                     feedbackForm.reset();
+                                    console.log('Feedback submitted successfully!');
                                 } else {
                                     console.error('Form submission failed:', response.statusText);
                                     alert('Failed to send feedback. Please try again.');
@@ -178,18 +185,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                 alert('An error occurred. Please try again.');
                             }
                         });
+                        console.log('Feedback form listener attached.');
                     }
 
                     if (openFeedbackPopupButton) {
                         openFeedbackPopupButton.addEventListener('click', () => {
                             feedbackPopupOverlay.classList.add('show');
+                            console.log('Open feedback button clicked!');
                         });
+                        console.log('Open feedback button listener attached.');
                     }
 
                     if (feedbackPopupBackButton) {
                         feedbackPopupBackButton.addEventListener('click', () => {
                             feedbackPopupOverlay.classList.remove('show');
+                            console.log('Feedback back button clicked!');
                         });
+                        console.log('Feedback back button listener attached.');
                     }
 
                 }, 0); // Use setTimeout to ensure DOM is updated
