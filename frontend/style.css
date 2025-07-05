@@ -78,27 +78,20 @@
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.profile-pic-container::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
     background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888, #9c27b0);
-    border-radius: 50%;
-    z-index: -1;
+    padding: 2px; /* This will be the gradient border */
 }
 
 .profile-pic-container img {
-    width: calc(100% - 4px);
-    height: calc(100% - 4px);
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
     object-fit: cover;
-    background-color: white; /* To ensure the image is on top of the gradient */
-    padding: 2px; /* To create a small white border inside the gradient */
+    background-color: white; /* Inner white circle */
+}
+
+#rakibul-profile-pic {
+    background: linear-gradient(45deg, #007bff, #00c6ff); /* A brighter blue gradient */
 }
 
 /* Success Pop-up Styles */
@@ -199,5 +192,97 @@
     margin-bottom: 10px; /* Adjusted margin */
     border-radius: 50%;
     object-fit: cover;
+}
+
+/* Feedback Pop-up Styles */
+.feedback-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.feedback-popup-overlay.show {
+    visibility: visible;
+    opacity: 1;
+}
+
+.feedback-popup-content {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+    transform: translateY(-20px);
+    transition: transform 0.3s ease;
+}
+
+.feedback-popup-overlay.show .feedback-popup-content {
+    transform: translateY(0);
+}
+
+.dark .feedback-popup-content {
+    background-color: #2d3748;
+    color: #e2e8f0;
+}
+
+.feedback-popup-back-button {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.feedback-popup-back-button:hover {
+    color: #333;
+}
+
+.dark .feedback-popup-back-button {
+    color: #bbb;
+}
+
+.dark .feedback-popup-back-button:hover {
+    color: #eee;
+}
+
+.form-title {
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-title ion-icon {
+    margin-right: 0.5rem;
+    font-size: 1.8rem;
+}
+
+.form-input {
+    margin-bottom: 1rem;
+}
+
+.form-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-btn ion-icon {
+    margin-right: 0.5rem;
 }
 

@@ -138,12 +138,6 @@
         "img": "https://via.placeholder.com/32x32?text=Local"
     },
     {
-        "name": "MySitemap Generator Feed",
-        "url": "https://cdn.mysitemapgenerator.com/shareapi/rss/1609808773",
-        "category": "local",
-        "img": "https://via.placeholder.com/32x32?text=Local"
-    },
-    {
         "name": "TBS News",
         "url": "https://tbsnews.net/top-news/rss.xml",
         "category": "local",
