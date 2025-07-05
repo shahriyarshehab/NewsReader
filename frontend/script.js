@@ -20,26 +20,21 @@ document.addEventListener('DOMContentLoaded', () => {
         successPopupOverlay.classList.remove('show');
     });
 
-    const feeds = [
-        { name: 'Nation', url: 'https://news.google.com/news/rss/headlines/section/topic/NATION?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Prothom_Alo_Logo.svg/1200px-Prothom_Alo_Logo.svg.png' },
-        { name: 'World', url: 'https://news.google.com/news/rss/headlines/section/topic/WORLD?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://www.kalerkantho.com/assets/news_portal/images/logo.png' },
-        { name: 'Jobs', url: 'https://news.google.com/news/rss/headlines/section/topic/JOBS?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
-        { name: 'Sports', url: 'https://news.google.com/news/rss/headlines/section/topic/SPORTS?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://www.thedailystar.net/sites/all/themes/thedailystar/logo.png' },
-        { name: 'Technology', url: 'https://news.google.com/news/rss/headlines/section/topic/TECHNOLOGY?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://www.bd-pratidin.com/assets/news_portal/images/logo.png' },
-        { name: 'Health', url: 'https://news.google.com/news/rss/headlines/section/topic/HEALTH?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://www.banglanews24.com/assets/news_portal/images/logo.png' },
-        { name: 'Economy', url: 'https://news.google.com/news/rss/headlines/section/topic/ECONOMY?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
-        { name: 'Internet', url: 'https://news.google.com/news/rss/headlines/section/topic/INTERNET?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://assets.guim.co.uk/images/favicons/46bd2faa1253e65a3448924976647244/32x32.ico' },
-        { name: 'Science', url: 'https://news.google.com/news/rss/headlines/section/topic/SCIENCE?hl=bn&gl=BD&ceid=BD%3Abn', category: 'googlenews', img: 'https://www.tbsnews.org/sites/all/themes/tbsnews/logo.png' },
-        { name: 'Prothom Alo', url: 'https://www.prothomalo.com/feed', category: 'local', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/Prothom_Alo_Logo.svg/1200px-Prothom_Alo_Logo.svg.png' },
-        { name: 'Kaler Kantho', url: 'https://www.kalerkantho.com/rss.xml', category: 'local', img: 'https://www.kalerkantho.com/assets/news_portal/images/logo.png' },
-        { name: 'BBC Bengali', url: 'https://www.bbc.com/bengali/index.xml', category: 'international', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
-        { name: 'The Daily Star', url: 'https://www.thedailystar.net/frontpage/rss.xml', category: 'local', img: 'https://www.thedailystar.net/sites/all/themes/thedailystar/logo.png' },
-        { name: 'Bangladesh Pratidin', url: 'https://www.bd-pratidin.com/rss.xml', category: 'local', img: 'https://www.bd-pratidin.com/assets/news_portal/images/logo.png' },
-        { name: 'BDNews24.com', url: 'https://www.banglanews24.com/rss/rss.xml', category: 'local', img: 'https://www.banglanews24.com/assets/news_portal/images/logo.png' },
-        { name: 'BBC News - World', url: 'http://feeds.bbci.co.uk/news/world/rss.xml', category: 'international', img: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/BBC_News_2016.svg/1200px-BBC_News_2016.svg.png' },
-        { name: 'The Guardian - World news', url: 'https://www.theguardian.com/world/rss', category: 'international', img: 'https://assets.guim.co.uk/images/favicons/46bd2faa1253e65a3448924976647244/32x32.ico' },
-        { name: 'The Business Standard (TBS) Bangla', url: 'https://www.tbsnews.net/bangla/rss.xml', category: 'local', img: 'https://www.tbsnews.org/sites/all/themes/tbsnews/logo.png' },
-    ];
+    let feeds = [];
+
+    async function loadFeeds() {
+        try {
+            const response = await fetch('newspapers.json');
+            feeds = await response.json();
+            renderNewspaperMenu();
+            fetchNews();
+        } catch (error) {
+            console.error('Error loading feeds from NewspapersRSS:', error);
+            // Fallback or error handling if feeds cannot be loaded
+        }
+    }
+
+    loadFeeds();
 
     let currentCategory = 'local'; // Default category
     let currentNewspaper = null; // State variable for selected newspaper
@@ -263,7 +258,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Initial load
-    renderNewspaperMenu();
-    fetchNews();
+    loadFeeds();
 });
